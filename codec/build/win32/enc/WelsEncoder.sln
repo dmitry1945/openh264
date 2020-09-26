@@ -1,23 +1,23 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WelsEncCore", "WelsEncCore.vcproj", "{59208004-1774-4816-AC24-31FF44C324B4}"
-	ProjectSection(ProjectDependencies) = postProject
-		{E8DFAFA1-8DAC-4127-8D27-FBD5819EE562} = {E8DFAFA1-8DAC-4127-8D27-FBD5819EE562}
-	EndProjectSection
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30225.117
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WelsEncCore", "WelsEncCore.vcxproj", "{59208004-1774-4816-AC24-31FF44C324B4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WelsEncPlus", "WelsEncPlus.vcproj", "{1E7B4E9A-986E-4167-8C70-6E4F60EAEE7F}"
-	ProjectSection(ProjectDependencies) = postProject
-		{59208004-1774-4816-AC24-31FF44C324B4} = {59208004-1774-4816-AC24-31FF44C324B4}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WelsEncPlus", "WelsEncPlus.vcxproj", "{1E7B4E9A-986E-4167-8C70-6E4F60EAEE7F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "encConsole", "encConsole.vcproj", "{8509E2A8-2CBD-49E2-B564-3EFF1E927459}"
-	ProjectSection(ProjectDependencies) = postProject
-		{1E7B4E9A-986E-4167-8C70-6E4F60EAEE7F} = {1E7B4E9A-986E-4167-8C70-6E4F60EAEE7F}
-		{E8DFAFA1-8DAC-4127-8D27-FBD5819EE562} = {E8DFAFA1-8DAC-4127-8D27-FBD5819EE562}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "encConsole", "encConsole.vcxproj", "{8509E2A8-2CBD-49E2-B564-3EFF1E927459}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WelsVP", "..\..\..\processing\build\win32\WelsVP.vcproj", "{E8DFAFA1-8DAC-4127-8D27-FBD5819EE562}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WelsVP", "..\..\..\processing\build\win32\WelsVP.vcxproj", "{E8DFAFA1-8DAC-4127-8D27-FBD5819EE562}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCVenc", "..\OpenCVenc\OpenCVenc.vcxproj", "{321F468F-FBB3-460B-9F37-FB2E01D0808A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WelsDecPlus", "..\dec\WelsDecPlus.vcxproj", "{1131558A-9986-4F4B-A13F-8B7F4C8438BF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WelsDecCore", "..\dec\WelsDecCore.vcxproj", "{01B4AE41-6AD6-4CAF-AEB3-C42F7F9121D5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "decConsole", "..\dec\decConsole.vcxproj", "{71973A8E-103D-4FB7-951F-55E35E7F60FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,8 +59,43 @@ Global
 		{E8DFAFA1-8DAC-4127-8D27-FBD5819EE562}.Release|Win32.Build.0 = Release|Win32
 		{E8DFAFA1-8DAC-4127-8D27-FBD5819EE562}.Release|x64.ActiveCfg = Release|x64
 		{E8DFAFA1-8DAC-4127-8D27-FBD5819EE562}.Release|x64.Build.0 = Release|x64
+		{321F468F-FBB3-460B-9F37-FB2E01D0808A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{321F468F-FBB3-460B-9F37-FB2E01D0808A}.Debug|Win32.Build.0 = Debug|Win32
+		{321F468F-FBB3-460B-9F37-FB2E01D0808A}.Debug|x64.ActiveCfg = Debug|x64
+		{321F468F-FBB3-460B-9F37-FB2E01D0808A}.Debug|x64.Build.0 = Debug|x64
+		{321F468F-FBB3-460B-9F37-FB2E01D0808A}.Release|Win32.ActiveCfg = Release|Win32
+		{321F468F-FBB3-460B-9F37-FB2E01D0808A}.Release|Win32.Build.0 = Release|Win32
+		{321F468F-FBB3-460B-9F37-FB2E01D0808A}.Release|x64.ActiveCfg = Release|x64
+		{321F468F-FBB3-460B-9F37-FB2E01D0808A}.Release|x64.Build.0 = Release|x64
+		{1131558A-9986-4F4B-A13F-8B7F4C8438BF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1131558A-9986-4F4B-A13F-8B7F4C8438BF}.Debug|Win32.Build.0 = Debug|Win32
+		{1131558A-9986-4F4B-A13F-8B7F4C8438BF}.Debug|x64.ActiveCfg = Debug|x64
+		{1131558A-9986-4F4B-A13F-8B7F4C8438BF}.Debug|x64.Build.0 = Debug|x64
+		{1131558A-9986-4F4B-A13F-8B7F4C8438BF}.Release|Win32.ActiveCfg = Release|Win32
+		{1131558A-9986-4F4B-A13F-8B7F4C8438BF}.Release|Win32.Build.0 = Release|Win32
+		{1131558A-9986-4F4B-A13F-8B7F4C8438BF}.Release|x64.ActiveCfg = Release|x64
+		{1131558A-9986-4F4B-A13F-8B7F4C8438BF}.Release|x64.Build.0 = Release|x64
+		{01B4AE41-6AD6-4CAF-AEB3-C42F7F9121D5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{01B4AE41-6AD6-4CAF-AEB3-C42F7F9121D5}.Debug|Win32.Build.0 = Debug|Win32
+		{01B4AE41-6AD6-4CAF-AEB3-C42F7F9121D5}.Debug|x64.ActiveCfg = Debug|x64
+		{01B4AE41-6AD6-4CAF-AEB3-C42F7F9121D5}.Debug|x64.Build.0 = Debug|x64
+		{01B4AE41-6AD6-4CAF-AEB3-C42F7F9121D5}.Release|Win32.ActiveCfg = Release|Win32
+		{01B4AE41-6AD6-4CAF-AEB3-C42F7F9121D5}.Release|Win32.Build.0 = Release|Win32
+		{01B4AE41-6AD6-4CAF-AEB3-C42F7F9121D5}.Release|x64.ActiveCfg = Release|x64
+		{01B4AE41-6AD6-4CAF-AEB3-C42F7F9121D5}.Release|x64.Build.0 = Release|x64
+		{71973A8E-103D-4FB7-951F-55E35E7F60FA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{71973A8E-103D-4FB7-951F-55E35E7F60FA}.Debug|Win32.Build.0 = Debug|Win32
+		{71973A8E-103D-4FB7-951F-55E35E7F60FA}.Debug|x64.ActiveCfg = Debug|x64
+		{71973A8E-103D-4FB7-951F-55E35E7F60FA}.Debug|x64.Build.0 = Debug|x64
+		{71973A8E-103D-4FB7-951F-55E35E7F60FA}.Release|Win32.ActiveCfg = Release|Win32
+		{71973A8E-103D-4FB7-951F-55E35E7F60FA}.Release|Win32.Build.0 = Release|Win32
+		{71973A8E-103D-4FB7-951F-55E35E7F60FA}.Release|x64.ActiveCfg = Release|x64
+		{71973A8E-103D-4FB7-951F-55E35E7F60FA}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D0BD4A03-121C-4E24-95A2-D336EF52A895}
 	EndGlobalSection
 EndGlobal
