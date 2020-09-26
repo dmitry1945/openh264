@@ -852,26 +852,26 @@ int ProcessEncoding(ISVCEncoder* pPtrEnc, int argc, char** argv, bool bConfigFil
 #endif
 
 
-	// ======   Init decoder  =======
-	ISVCDecoder* decoder = NULL;
-	WelsCreateDecoder(&decoder);
+	//// ======   Init decoder  =======
+	//ISVCDecoder* decoder = NULL;
+	//WelsCreateDecoder(&decoder);
 
-	int32_t iLevelSetting = (int)WELS_LOG_WARNING;;
-	decoder->SetOption(DECODER_OPTION_TRACE_LEVEL, &iLevelSetting);
-	int32_t iThreadCount = 0;
-	decoder->SetOption(DECODER_OPTION_NUM_OF_THREADS, &iThreadCount);
+	//int32_t iLevelSetting = (int)WELS_LOG_WARNING;;
+	//decoder->SetOption(DECODER_OPTION_TRACE_LEVEL, &iLevelSetting);
+	//int32_t iThreadCount = 0;
+	//decoder->SetOption(DECODER_OPTION_NUM_OF_THREADS, &iThreadCount);
 
-	SDecodingParam sDecParam = { 0 };
-	sDecParam.sVideoProperty.size = sizeof(sDecParam.sVideoProperty);
-	sDecParam.eEcActiveIdc = ERROR_CON_SLICE_MV_COPY_CROSS_IDR_FREEZE_RES_CHANGE;
-	int32_t err_method = sDecParam.eEcActiveIdc;
-	decoder->Initialize(&sDecParam);
-	decoder->SetOption(DECODER_OPTION_ERROR_CON_IDC, &err_method);
-	SBufferInfo sDstBufInfo;
-	uint8_t* pData[3] = { NULL };
-	uint8_t* pData_buff = NULL;
+	//SDecodingParam sDecParam = { 0 };
+	//sDecParam.sVideoProperty.size = sizeof(sDecParam.sVideoProperty);
+	//sDecParam.eEcActiveIdc = ERROR_CON_SLICE_MV_COPY_CROSS_IDR_FREEZE_RES_CHANGE;
+	//int32_t err_method = sDecParam.eEcActiveIdc;
+	//decoder->Initialize(&sDecParam);
+	//decoder->SetOption(DECODER_OPTION_ERROR_CON_IDC, &err_method);
+	//SBufferInfo sDstBufInfo;
+	//uint8_t* pData[3] = { NULL };
+	//uint8_t* pData_buff = NULL;
 
-	// Here decoder initialized!
+	//// Here decoder initialized!
 
 
 	SFilesSet fs;
@@ -1102,52 +1102,52 @@ int ProcessEncoding(ISVCEncoder* pPtrEnc, int argc, char** argv, bool bConfigFil
 					{
 						fwrite(pLayerBsInfo->pBsBuf, 1, iLayerSize, pFpBs[0]); // write pure bit stream into file
 
-						int32_t iBufPos = 0;
-						while (iBufPos < iLayerSize)
-						{
-							int32_t iSliceSize = GetSliceSize(pLayerBsInfo->pBsBuf, iBufPos, iLayerSize);
-							if (iSliceSize < 4) { //too small size, no effective data, ignore
-								iBufPos += iSliceSize;
-								continue;
-							}
+						//int32_t iBufPos = 0;
+						//while (iBufPos < iLayerSize)
+						//{
+						//	int32_t iSliceSize = GetSliceSize(pLayerBsInfo->pBsBuf, iBufPos, iLayerSize);
+						//	if (iSliceSize < 4) { //too small size, no effective data, ignore
+						//		iBufPos += iSliceSize;
+						//		continue;
+						//	}
 
-							printf("iBufPos = %i, iSliceSize = %i\n", iBufPos, iSliceSize);
-							// After process
-							//.....
-							pData[0] = NULL;
-							pData[1] = NULL;
-							pData[2] = NULL;
+						//	printf("iBufPos = %i, iSliceSize = %i\n", iBufPos, iSliceSize);
+						//	// After process
+						//	//.....
+						//	/*pData[0] = NULL;
+						//	pData[1] = NULL;
+						//	pData[2] = NULL;
 
-							memset(&sDstBufInfo, 0, sizeof(SBufferInfo));
-							decoder->DecodeFrameNoDelay(pLayerBsInfo->pBsBuf + iBufPos, iSliceSize, pData, &sDstBufInfo);
-							printf("DecodeFrame2::Process: pInfo->iBufferStatus=%i, iFormat=%i, iWidth=%i, iHeight=%i, iStride[0]=%i, iStride[1]=%i\n",
-								sDstBufInfo.iBufferStatus,
-								sDstBufInfo.UsrData.sSystemBuffer.iFormat,
-								sDstBufInfo.UsrData.sSystemBuffer.iWidth,
-								sDstBufInfo.UsrData.sSystemBuffer.iHeight,
-								sDstBufInfo.UsrData.sSystemBuffer.iStride[0],
-								sDstBufInfo.UsrData.sSystemBuffer.iStride[1]
-							);
-							if (sDstBufInfo.iBufferStatus != 0)
-							{
-								int buff_len = sDstBufInfo.UsrData.sSystemBuffer.iWidth * sDstBufInfo.UsrData.sSystemBuffer.iHeight;
-								if (pData_buff == NULL)
-								{
-									pData_buff = new uint8_t[(int)(buff_len * 3)];
-								}
-								memcpy(&pData_buff[0], pData[0], buff_len);
-								memcpy(&pData_buff[buff_len], pData[1], buff_len / 4);
-								memcpy(&pData_buff[buff_len + buff_len / 4], pData[2], buff_len / 4);
-							}
-							//.....
-							iBufPos += iSliceSize;
-						}
-						printf("fwrite: iLayerSize=%i, data: ", iLayerSize);
-						for (size_t i = 0; i < 10; i++)
-						{
-							printf(" %2.2x, ", *(pLayerBsInfo->pBsBuf + i));
-						}
-						printf("\n");
+						//	memset(&sDstBufInfo, 0, sizeof(SBufferInfo));
+						//	decoder->DecodeFrameNoDelay(pLayerBsInfo->pBsBuf + iBufPos, iSliceSize, pData, &sDstBufInfo);
+						//	printf("DecodeFrame2::Process: pInfo->iBufferStatus=%i, iFormat=%i, iWidth=%i, iHeight=%i, iStride[0]=%i, iStride[1]=%i\n",
+						//		sDstBufInfo.iBufferStatus,
+						//		sDstBufInfo.UsrData.sSystemBuffer.iFormat,
+						//		sDstBufInfo.UsrData.sSystemBuffer.iWidth,
+						//		sDstBufInfo.UsrData.sSystemBuffer.iHeight,
+						//		sDstBufInfo.UsrData.sSystemBuffer.iStride[0],
+						//		sDstBufInfo.UsrData.sSystemBuffer.iStride[1]
+						//	);
+						//	if (sDstBufInfo.iBufferStatus != 0)
+						//	{
+						//		int buff_len = sDstBufInfo.UsrData.sSystemBuffer.iWidth * sDstBufInfo.UsrData.sSystemBuffer.iHeight;
+						//		if (pData_buff == NULL)
+						//		{
+						//			pData_buff = new uint8_t[(int)(buff_len * 3)];
+						//		}
+						//		memcpy(&pData_buff[0], pData[0], buff_len);
+						//		memcpy(&pData_buff[buff_len], pData[1], buff_len / 4);
+						//		memcpy(&pData_buff[buff_len + buff_len / 4], pData[2], buff_len / 4);
+						//	}*/
+						//	//.....
+						//	iBufPos += iSliceSize;
+						//}
+						//printf("fwrite: iLayerSize=%i, data: ", iLayerSize);
+						//for (size_t i = 0; i < 10; i++)
+						//{
+						//	printf(" %2.2x, ", *(pLayerBsInfo->pBsBuf + i));
+						//}
+						//printf("\n");
 					}
 					else { //multi bs file write
 						if (pLayerBsInfo->uiSpatialId == 0) {
