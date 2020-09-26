@@ -856,7 +856,9 @@ int FillSpecificParameters(SEncParamExt& sParam) {
 }
 
 
-int GetSliceSize(uint8_t* pBuf, int iBufPos, int buff_size)
+int32_t GetSliceSize(uint8_t* pBuf, int32_t iBufPos, int32_t buff_size);
+
+int32_t GetSliceSize(uint8_t* pBuf, int32_t iBufPos, int32_t buff_size)
 {
     int i = 0;
     for (i = 0; i < buff_size; i++) {
