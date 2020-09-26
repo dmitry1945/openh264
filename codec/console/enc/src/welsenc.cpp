@@ -850,6 +850,30 @@ int ProcessEncoding(ISVCEncoder* pPtrEnc, int argc, char** argv, bool bConfigFil
 #if defined ( STICK_STREAM_SIZE )
 	FILE* fTrackStream = fopen("coding_size.stream", "wb");
 #endif
+
+
+	// ======   Init decoder  =======
+	ISVCDecoder* decoder = NULL;
+	WelsCreateDecoder(&decoder);
+
+	int32_t iLevelSetting = (int)WELS_LOG_WARNING;;
+	decoder->SetOption(DECODER_OPTION_TRACE_LEVEL, &iLevelSetting);
+	int32_t iThreadCount = 0;
+	decoder->SetOption(DECODER_OPTION_NUM_OF_THREADS, &iThreadCount);
+
+	SDecodingParam sDecParam = { 0 };
+	sDecParam.sVideoProperty.size = sizeof(sDecParam.sVideoProperty);
+	sDecParam.eEcActiveIdc = ERROR_CON_SLICE_MV_COPY_CROSS_IDR_FREEZE_RES_CHANGE;
+	int32_t err_method = sDecParam.eEcActiveIdc;
+	decoder->Initialize(&sDecParam);
+	decoder->SetOption(DECODER_OPTION_ERROR_CON_IDC, &err_method);
+	SBufferInfo sDstBufInfo;
+	uint8_t* pData[3] = { NULL };
+	uint8_t* pData_buff = NULL;
+
+	// Here decoder initialized!
+
+
 	SFilesSet fs;
 	// for configuration file
 	CReadConfig cRdCfg;
@@ -971,27 +995,6 @@ int ProcessEncoding(ISVCEncoder* pPtrEnc, int argc, char** argv, bool bConfigFil
 		iRet = 1;
 		goto INSIDE_MEM_FREE;
 	}
-
-	// ======   Init decoder  =======
-	ISVCDecoder* decoder = NULL;
-	WelsCreateDecoder(&decoder);
-
-	int32_t iLevelSetting = (int)WELS_LOG_WARNING;;
-	decoder->SetOption(DECODER_OPTION_TRACE_LEVEL, &iLevelSetting);
-	int32_t iThreadCount = 0;
-	decoder->SetOption(DECODER_OPTION_NUM_OF_THREADS, &iThreadCount);
-
-	SDecodingParam sDecParam = { 0 };
-	sDecParam.sVideoProperty.size = sizeof(sDecParam.sVideoProperty);
-	sDecParam.eEcActiveIdc = ERROR_CON_SLICE_MV_COPY_CROSS_IDR_FREEZE_RES_CHANGE;
-	int32_t err_method = sDecParam.eEcActiveIdc;
-	decoder->Initialize(&sDecParam);
-	decoder->SetOption(DECODER_OPTION_ERROR_CON_IDC, &err_method);
-	SBufferInfo sDstBufInfo;
-	uint8_t* pData[3] = { NULL };
-	uint8_t* pData_buff = NULL;
-
-	// Here decoder initialized!
 
 
 
