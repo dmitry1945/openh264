@@ -63,6 +63,14 @@
 
 #include <iostream>
 #include <signal.h>
+
+#include <fcntl.h>              /* low-level i/o */
+#include <errno.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/ioctl.h>
+
 #include "TCPClient.h"
 
 
@@ -133,6 +141,57 @@ int32_t GetSliceSize(uint8_t* pBuf, int32_t iBufPos, int32_t buff_size)
 }
 
 
+//static int xioctl(int fh, int request, void* arg)
+//{
+//	int r;
+//	do {
+//		r = ioctl(fh, request, arg);
+//	} while (-1 == r && EINTR == errno);
+//	return r;
+//}
+//
+//int allocCamera(const char* file)
+//{
+//	struct v4l2_capability cap;
+//	struct v4l2_crop crop;
+//	struct v4l2_format fmt;
+//
+//	int camera_fd = open(file, O_RDONLY);
+//
+//	if (-1 == xioctl(camera_fd, VIDIOC_QUERYCAP, &cap)) {
+//		if (EINVAL == errno) {
+//			fprintf(stderr, "%s is no V4L2 device\n", file);
+//			exit(EXIT_FAILURE);
+//		}
+//		else {
+//			printf("\nError in ioctl VIDIOC_QUERYCAP\n\n");
+//			exit(0);
+//		}
+//	}
+//
+//	if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
+//		fprintf(stderr, "%s is no video capture device\n", file);
+//		exit(EXIT_FAILURE);
+//	}
+//
+//	if (!(cap.capabilities & V4L2_CAP_READWRITE)) {
+//		fprintf(stderr, "%s does not support read i/o\n", file);
+//		exit(EXIT_FAILURE);
+//	}
+//
+//	memset(&fmt, 0, sizeof(fmt));
+//	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+//	fmt.fmt.pix.width = 320;
+//	fmt.fmt.pix.height = 240;
+//	fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
+//	fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
+//	if (-1 == xioctl(camera_fd, VIDIOC_S_FMT, &fmt)) {
+//		printf("VIDIOC_S_FMT");
+//	}
+//	return camera_fd;
+//}
+
+
 int main(int argc, char* argv[])
 {
 	if (argc != 4) {
@@ -140,42 +199,112 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
+	if (!cv::ocl::haveOpenCL())
+	{
+		cout << "OpenCL is not avaiable..." << endl;
+		//return 0;
+	}
+	cv::ocl::setUseOpenCL(true);
 
-	// ======   Init decoder  =======
-	ISVCDecoder* decoder = NULL;
-	WelsCreateDecoder(&decoder);
+	int cuda_devs = cv::cuda::getCudaEnabledDeviceCount();
+	std::cout << "Amount of CUDA - " << cuda_devs << std::endl;
 
-	int32_t iLevelSetting = (int)WELS_LOG_WARNING;;
-	decoder->SetOption(DECODER_OPTION_TRACE_LEVEL, &iLevelSetting);
-	int32_t iThreadCount = 0;
-	decoder->SetOption(DECODER_OPTION_NUM_OF_THREADS, &iThreadCount);
+	cv::ocl::Context context;
+	//if (!context.create(cv::ocl::Device::TYPE_GPU))
+	//	cout << "Failed creating the context..." << endl;
+	////return 0;
+	//{
+	//}
+	if (!context.create(cv::ocl::Device::TYPE_GPU))
+		cout << "Failed creating the context..." << endl;
+	//return 0;
+	{
+	}
 
-	SDecodingParam sDecParam = { 0 };
-	sDecParam.sVideoProperty.size = sizeof(sDecParam.sVideoProperty);
-	sDecParam.eEcActiveIdc = ERROR_CON_SLICE_MV_COPY_CROSS_IDR_FREEZE_RES_CHANGE;
-	int32_t err_method = sDecParam.eEcActiveIdc;
-	decoder->Initialize(&sDecParam);
-	decoder->SetOption(DECODER_OPTION_ERROR_CON_IDC, &err_method);
-	SBufferInfo sDstBufInfo;
-	uint8_t* pData[3] = { NULL };
-	uint8_t* pData_buff = NULL;
-	// Here decoder initialized!
+	// In OpenCV 3.0.0 beta, only a single device is detected.
+	cout << context.ndevices() << " GPU devices are detected." << endl;
+	for (int i = 0; i < context.ndevices(); i++)
+	{
+		cv::ocl::Device device = context.device(i);
+		cout << "name                 : " << device.name() << endl;
+		cout << "available            : " << device.available() << endl;
+		cout << "imageSupport         : " << device.imageSupport() << endl;
+		cout << "OpenCL_C_Version     : " << device.OpenCL_C_Version() << endl;
+		cout << endl;
+	}
+
+	// Select the first device
+	cv::ocl::Device(context.device(0));
+
+
+	cv::VideoCapture* slam_cam;
+	cv::Size SizeOfFrame;
+	cv::Mat frame_color;
+	cv::Mat frame;
+	int iSourceWidth = 320;
+	int iSourceHeight = 240;
+
+
+	slam_cam = InitCamera(0, iSourceWidth, iSourceHeight, 30);
+
+
+	//// ======   Init decoder  =======
+	//ISVCDecoder* decoder = NULL;
+	//WelsCreateDecoder(&decoder);
+
+	//int32_t iLevelSetting = (int)WELS_LOG_WARNING;;
+	//decoder->SetOption(DECODER_OPTION_TRACE_LEVEL, &iLevelSetting);
+	//int32_t iThreadCount = 0;
+	//decoder->SetOption(DECODER_OPTION_NUM_OF_THREADS, &iThreadCount);
+
+	//SDecodingParam sDecParam = { 0 };
+	//sDecParam.sVideoProperty.size = sizeof(sDecParam.sVideoProperty);
+	//sDecParam.eEcActiveIdc = ERROR_CON_SLICE_MV_COPY_CROSS_IDR_FREEZE_RES_CHANGE;
+	//int32_t err_method = sDecParam.eEcActiveIdc;
+	//decoder->Initialize(&sDecParam);
+	//decoder->SetOption(DECODER_OPTION_ERROR_CON_IDC, &err_method);
+	//SBufferInfo sDstBufInfo;
+	//uint8_t* pData[3] = { NULL };
+	//uint8_t* pData_buff = NULL;
+	//// Here decoder initialized!
 
 
 	signal(SIGINT, sig_exit);
+	uint8_t* txBuff = new uint8_t[8192];
+	for (size_t i = 0; i < 8192; i++)
+	{
+		txBuff[i] = 0x30;
+	}
+	txBuff[8191] = 0;
 
-	tcp.setup(argv[1], atoi(argv[2]));
+//	tcp.setup(argv[1], atoi(argv[2]));
+	int last_sec = 0;
+	int fps_count = 0;
 	while (1)
 	{
-		//if (send(sock, data.c_str(), strlen(data.c_str()), 0) < 0)
-		//tcp.Send(argv[3]);
-		tcp.Send(argv[3], strlen(argv[3]));
-		string rec = tcp.receive();
-		if (rec != "")
+
+		(*slam_cam) >> frame_color;
+		
+		std::time_t t = std::time(0);
+		std::tm* now = std::localtime(&t);
+		int hour = now->tm_hour;
+		int min = now->tm_min;
+		int sec = now->tm_sec;
+		fps_count++;
+		if (last_sec != now->tm_sec)
 		{
-			cout << rec << endl;
+			std::cout << "fps = " << fps_count << std::endl;
+			last_sec = now->tm_sec;
+			fps_count = 0;
 		}
-		sleep(1);
+
+		//tcp.Send(txBuff, 32);
+		//string rec = tcp.receive();
+		//if (rec != "")
+		//{
+		//	cout << rec << endl;
+		//}
+		//usleep(1000);
 	}
 	return 0;
 }

@@ -11,7 +11,7 @@ bool TCPClient::setup(string address , int port)
 {
   	if(sock == -1)
 	{
-		sock = socket(AF_INET , SOCK_DCCP, 0);
+		sock = socket(AF_INET , SOCK_SEQPACKET, 0);
 		if (sock == -1)
 		{
       			cout << "Could not create socket" << endl;
