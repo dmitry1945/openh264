@@ -8,7 +8,7 @@ bool TCPServer::isonline;
 vector<descript_socket*> TCPServer::Message;
 vector<descript_socket*> TCPServer::newsockfd;
 std::mutex TCPServer::mt;
-
+int total_received = 0;
 void* TCPServer::Task(void* arg)
 {
 	int n;
@@ -19,7 +19,12 @@ void* TCPServer::Task(void* arg)
 	while (1)
 	{
 		n = recv(desc->socket, msg, MAXPACKETSIZE, 0);
-		if (n > 0) std::cout << "Received = " << n << std::endl;
+		if (n > 0)
+		{
+			total_received += n;
+			//std::cout << "Received = " << n << ", total_received = "<< total_received << std::endl;
+			desc->server->process_rx(msg, n);
+		}
 
 		if (n != -1)
 		{
@@ -39,12 +44,12 @@ void* TCPServer::Task(void* arg)
 				if (num_client > 0) num_client--;
 				break;
 			}
-			msg[n] = 0;
-			desc->message = string(msg);
-			std::lock_guard<std::mutex> guard(mt);
-			Message.push_back(desc);
+			//msg[n] = 0;
+			//desc->message = string(msg);
+			//std::lock_guard<std::mutex> guard(mt);
+			//Message.push_back(desc);
 		}
-		usleep(1);
+		usleep(10);
 	}
 	if (desc != NULL)
 		free(desc);
@@ -59,7 +64,8 @@ int TCPServer::setup(int port, vector<int> opts)
 	int opt = 1;
 	isonline = false;
 	last_closed = -1;
-	sockfd = socket(AF_INET, SOCK_DCCP, 0);
+	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+//	sockfd = socket(AF_INET, SOCK_DCCP, 0);
 	memset(&serverAddress, 0, sizeof(serverAddress));
 
 	for (unsigned int i = 0; i < opts.size(); i++) {
@@ -68,6 +74,20 @@ int TCPServer::setup(int port, vector<int> opts)
 			return -1;
 		}
 	}
+
+	int sndbuf;
+	sndbuf = 200000;      /* a prime number */
+	setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &sndbuf, sizeof(sndbuf));
+	sndbuf = 200000;      /* a prime number */
+	setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &sndbuf, sizeof(sndbuf));
+
+	//int on = 1;
+	//setsockopt(sockfd, SOL_SOCKET, TCP_NODELAY, (void*)&on, sizeof(on)) < 0)
+
+	int rcvBufferSize;
+	unsigned int sockOptSize = sizeof(rcvBufferSize);
+	getsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &rcvBufferSize, &sockOptSize);
+	printf("initial socket receive buf %d\n", rcvBufferSize);
 
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -94,6 +114,7 @@ void TCPServer::accepted()
 	so->socket = accept(sockfd, (struct sockaddr*)&clientAddress, &sosize);
 	so->id = num_client;
 	so->ip = inet_ntoa(clientAddress.sin_addr);
+	so->server = this;
 	newsockfd.push_back(so);
 	cerr << "accept client[ id:" << newsockfd[num_client]->id <<
 		" ip:" << newsockfd[num_client]->ip <<
@@ -109,10 +130,10 @@ vector<descript_socket*> TCPServer::getMessage()
 	return Message;
 }
 
-void TCPServer::Send(string msg, int id)
-{
-	send(newsockfd[id]->socket, msg.c_str(), msg.length(), 0);
-}
+//void TCPServer::Send(string msg, int id)
+//{
+////	send(newsockfd[id]->socket, msg.c_str(), msg.length(), 0);
+//}
 
 int TCPServer::get_last_closed_sockets()
 {
@@ -133,6 +154,13 @@ string TCPServer::get_ip_addr(int id)
 bool TCPServer::is_online()
 {
 	return isonline;
+}
+
+bool TCPServer::Send(void* data, int len, int id)
+{
+		send(newsockfd[id]->socket, data, len, 0);
+
+	return false;
 }
 
 void TCPServer::detach(int id)

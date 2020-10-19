@@ -20,25 +20,33 @@
 
 using namespace std;
 
-#define MAXPACKETSIZE 40960
+#include "TCP_DataRecv.h"
+
+
+#define MAXPACKETSIZE 40960*4
 #define MAX_CLIENT 1000
 //#define CODA_MSG 4
+class TCPServer;
 
 struct descript_socket{
 	int socket     = -1;
 	string ip      = "";
 	int id         = -1; 
 	std::string message;
+	char* data;
+	int		len;
 	bool enable_message_runtime = false;
+	TCPServer* server;
 };
 
-class TCPServer
+class TCPServer: public TCP_DataRecv
 {
 	public:
 	int setup(int port, vector<int> opts = vector<int>());
 	vector<descript_socket*> getMessage();
 	void accepted();
-	void Send(string msg, int id);
+//	void Send(string msg, int id);
+	virtual bool Send(void* data, int len, int id = 0);
 	void detach(int id);
 	void clean(int id);
         bool is_online();
@@ -61,6 +69,7 @@ class TCPServer
 	static int num_client;
 	static std::mutex mt;
 	static void * Task(void * argv);
+
 };
 
 #endif

@@ -4,24 +4,62 @@
     <Filter Include="src">
       <UniqueIdentifier>{670f64fe-05c2-4f96-8a2c-0cbc3a36b6ce}</UniqueIdentifier>
     </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{da53535d-272f-415a-877e-67cbd60816be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tcp">
+      <UniqueIdentifier>{861ec59e-4de1-47cb-b5d5-b4278076af3f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp">
+    <ClCompile Include="src\encH264TcpTx_main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\TCPClient.cpp">
+    <ClCompile Include="src\encH264_init.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\TCPServer.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="..\modules\tcp\TCPClient.cpp">
+      <Filter>tcp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\modules\tcp\TCPServer.cpp">
+      <Filter>tcp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\modules\tcp\TCP_DataRecv.cpp">
+      <Filter>tcp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\modules\tcp\rxtx_packet.cpp">
+      <Filter>tcp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\TCPClient.h">
+    <ClInclude Include="src\encH264_init.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\TCPServer.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\modules\tcp\TCPClient.h">
+      <Filter>tcp</Filter>
     </ClInclude>
+    <ClInclude Include="..\modules\tcp\TCPServer.h">
+      <Filter>tcp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\modules\tcp\tcp_node.h">
+      <Filter>tcp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\modules\tcp\TCP_DataRecv.h">
+      <Filter>tcp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\modules\tcp\rxtx_packet.h">
+      <Filter>tcp</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="config\mpeg_encoder.yaml">
+      <Filter>config</Filter>
+    </None>
+    <None Include="config\layer2_vd.yaml">
+      <Filter>config</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -15,6 +15,9 @@ set ( SLAM_SRC_DIR ${PROJECT_SOURCE_DIR}/../../SFM_SLAM/src)
 set ( SLAM_INC_DIR ${PROJECT_SOURCE_DIR}/../../SFM_SLAM)
 set ( NAV_SRC_DIR ${SLAM_INC_DIR}/navigation)
 
+set ( TCP_SRC_DIR ${PROJECT_SOURCE_DIR}/../modules/tcp)
+set ( TCP_INC_DIR ${PROJECT_SOURCE_DIR}/../modules/tcp)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 set ( APP_NAME encH264TcpTx )
@@ -89,6 +92,9 @@ include_directories( ${H264_ROOT}/codec/api/svc )
 include_directories( ${H264_ROOT}/codec/encoder/core/inc )
 include_directories( ${H264_ROOT}/codec/decoder/core/inc )
 
+# TCP
+include_directories (${TCP_INC_DIR})
+
 
 
 message("==========>   SLAM_THIRDPARTY - ${SLAM_THIRDPARTY}")
@@ -99,9 +105,12 @@ SET(DBoW3_LIB_DIR "${SLAM_ROOT}//thirdparty/dbow3/install/lib")
 LINK_DIRECTORIES("${SLAM_ROOT}/thirdparty/g2o/build")
 LINK_DIRECTORIES("${SLAM_ROOT}/thirdparty/g2o/bin")
 
-list(APPEND SRC ${SRC_DIR}/main.cpp
-				${SRC_DIR}/TCPServer.cpp
-				${SRC_DIR}/TCPClient.cpp
+list(APPEND SRC ${SRC_DIR}/encH264TcpTx_main.cpp
+				${TCP_SRC_DIR}/rxtx_packet.cpp
+				${TCP_SRC_DIR}/TCP_DataRecv.cpp
+				${TCP_SRC_DIR}/TCPServer.cpp
+				${TCP_SRC_DIR}/TCPClient.cpp
+				${SRC_DIR}/encH264_init.cpp
 )
 add_executable ( ${APP_NAME} ${SRC} )
 
@@ -110,8 +119,8 @@ message(OpenCV_LIBS - "${OpenCV_LIBS}")
 target_link_libraries( ${APP_NAME}
 #				rockchip_mpp
 #				utils				
-				v4l2 
-				jpeg
+#				v4l2 
+#				jpeg
 #				slam
 				pthread
 				DBoW3

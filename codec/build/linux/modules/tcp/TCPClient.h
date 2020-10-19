@@ -16,7 +16,9 @@
 
 using namespace std;
 
-class TCPClient
+#include "TCP_DataRecv.h"
+
+class TCPClient: public TCP_DataRecv
 {
   private:
     int sock;
@@ -28,10 +30,11 @@ class TCPClient
     TCPClient();
     bool setup(string address, int port);
     bool Send(string data);
-    bool Send(void* data, int len);
+    virtual bool Send(void* data, int len, int id = 0);
     string receive(int size = 4096);
     string read();
     void exit();
+
 };
 
 #endif

@@ -92,7 +92,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <RemoteBuildCommandLine>dir &amp;&amp; cmake  -DCMAKE_VERBOSE_MAKEFILE=ON  -DCMAKE_BUILD_TYPE=Debug . &amp;&amp; make</RemoteBuildCommandLine>
     <RemoteCleanCommandLine>dir</RemoteCleanCommandLine>
-    <RemoteBuildOutputs>$(RemoteRootDir)/$(ProjectName)/encH264TcpTx</RemoteBuildOutputs>
+    <RemoteBuildOutputs>$(RemoteRootDir)/$(ProjectName)/encH264TcpTx/encH264TcpTx</RemoteBuildOutputs>
     <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
@@ -100,13 +100,26 @@
     <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\TCPClient.cpp" />
-    <ClCompile Include="src\TCPServer.cpp" />
+    <ClCompile Include="..\modules\tcp\rxtx_packet.cpp" />
+    <ClCompile Include="..\modules\tcp\TCPClient.cpp" />
+    <ClCompile Include="..\modules\tcp\TCPServer.cpp" />
+    <ClCompile Include="..\modules\tcp\TCP_DataRecv.cpp" />
+    <ClCompile Include="src\encH264TcpTx_main.cpp" />
+    <ClCompile Include="src\encH264_init.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\TCPClient.h" />
-    <ClInclude Include="src\TCPServer.h" />
+    <ClInclude Include="..\modules\tcp\rxtx_packet.h" />
+    <ClInclude Include="..\modules\tcp\TCPClient.h" />
+    <ClInclude Include="..\modules\tcp\TCPServer.h" />
+    <ClInclude Include="..\modules\tcp\TCP_DataRecv.h" />
+    <ClInclude Include="..\modules\tcp\tcp_node.h" />
+    <ClInclude Include="src\encH264_init.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="config\layer2_vd.yaml" />
+    <None Include="config\mpeg_encoder.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
   </ItemGroup>
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

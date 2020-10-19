@@ -13,12 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{d8e17dfd-ee9c-450c-9b47-493d2b902854}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="OpenCVenc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\console\common\src\read_config.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\linux\encH264TcpTx\src\encH264_init.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -28,6 +34,12 @@
     </None>
     <None Include="config\welsenc_vd_1d_cfg.cfg">
       <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\..\linux\encH264TcpTx\config\mpeg_encoder.yaml">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\linux\encH264TcpTx\config\layer2_vd.yaml">
+      <Filter>config</Filter>
     </None>
   </ItemGroup>
 </Project>

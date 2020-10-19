@@ -77,6 +77,9 @@ int     g_iEncodedFrame = 0;
 #include <opencv2/videoio/legacy/constants_c.h>
 #include <opencv2/imgcodecs/legacy/constants_c.h>
 
+#include "C:/Work/Espressif/Tech/Arrow/SFM/SW/openh264/codec/build/linux/encH264TcpTx/src/encH264_init.h"
+
+
 
 using namespace cv;
 using namespace std;
@@ -183,7 +186,6 @@ static int     g_iCtrlC = 0;
 static void    SigIntHandler(int a) {
     g_iCtrlC = 1;
 }
-static int     g_LevelSetting = WELS_LOG_ERROR;
 
 int ParseLayerConfig(CReadConfig& cRdLayerCfg, const int iLayer, SEncParamExt& pSvcParam, SFilesSet& sFileSet) {
     if (!cRdLayerCfg.ExistFile()) {
@@ -1441,15 +1443,278 @@ int32_t CreateSVCEncHandle(ISVCEncoder** ppEncoder) {
 void DestroySVCEncHandle(ISVCEncoder* pEncoder) {
     if (pEncoder) {
         WelsDestroySVCEncoder(pEncoder);
-
     }
 }
+
 
 /****************************************************************************
  * main:
  ****************************************************************************/
+
+int testMain(int argc, char** argv)
+{
+    SEncParamExt sSvcParam;
+    SFrameBSInfo sFbi;
+    SSourcePicture* pSrcPic = new SSourcePicture;
+    int iRet = 0;
+    // Creat encoder and load default parameters
+    ISVCEncoder* pPtrEnc = NULL;
+    iRet = CreateSVCEncHandle(&pPtrEnc);
+
+    iRet = ConfigH264Encoder(pPtrEnc, sSvcParam, sFbi, pSrcPic, argv[2]);
+
+    if (iRet) {
+        cout << "WelsCreateSVCEncoder() failed!!" << endl;
+        return -1;
+    }
+
+
+    int iSourceWidth = pSrcPic->iPicWidth;
+    int iSourceHeight = pSrcPic->iPicHeight;
+
+    int32_t iFrameIdx = 0;
+    int64_t iStart = 0, iTotal = 0;
+    int64_t iStartTime = 0;
+    int64_t iBitsSent = 0;
+    int64_t iFramesPerSec = 0;
+
+
+    // ======   Init decoder  =======
+    ISVCDecoder* decoder = NULL;
+    WelsCreateDecoder(&decoder);
+
+    int32_t iLevelSetting = (int)WELS_LOG_WARNING;;
+    decoder->SetOption(DECODER_OPTION_TRACE_LEVEL, &iLevelSetting);
+    int32_t iThreadCount = 0;
+    decoder->SetOption(DECODER_OPTION_NUM_OF_THREADS, &iThreadCount);
+
+    SDecodingParam sDecParam = { 0 };
+    sDecParam.sVideoProperty.size = sizeof(sDecParam.sVideoProperty);
+    sDecParam.eEcActiveIdc = ERROR_CON_SLICE_MV_COPY_CROSS_IDR_FREEZE_RES_CHANGE;
+    int32_t err_method = sDecParam.eEcActiveIdc;
+    decoder->Initialize(&sDecParam);
+    decoder->SetOption(DECODER_OPTION_ERROR_CON_IDC, &err_method);
+    SBufferInfo sDstBufInfo;
+    uint8_t* pData[3] = { NULL };
+    uint8_t* pData_buff = NULL;
+    // Here decoder initialized!
+
+
+
+    cv::VideoCapture* slam_cam;
+    cv::Size SizeOfFrame;
+    cv::Mat frame_color;
+    cv::Mat frame;
+    slam_cam = InitCamera(0, iSourceWidth, iSourceHeight, 30);
+    SizeOfFrame = cv::Size(iSourceWidth, iSourceHeight);
+
+
+    Mat mYUV_back(iSourceHeight + iSourceHeight / 2, iSourceWidth, CV_8UC1, (void*)pSrcPic->pData[0]);
+    //cvtColor(mYUV, mRGB, cv::COLOR_YUV2RGB_YV12, 3);
+
+	//cv::waitKey(1);
+
+	while (true)
+	{
+		(*slam_cam) >> frame_color;
+
+		cvtColor(frame_color, mYUV_back, cv::COLOR_BGR2YUV_I420);
+
+		iStart = WelsTime();
+
+        //pSrcPic->uiTimeStamp = WELS_ROUND(iFrameIdx * (1000 / sSvcParam.fMaxFrameRate));
+        pSrcPic->uiTimeStamp = WELS_ROUND(iFrameIdx * (1000 / sSvcParam.fMaxFrameRate));
+        int iEncFrames = pPtrEnc->EncodeFrame(pSrcPic, &sFbi);
+		++iFrameIdx;
+		if (videoFrameTypeSkip == sFbi.eFrameType) {
+			printf("Skip frame!!!\n");
+			        continue;
+		}
+        if (iEncFrames == cmResultSuccess) {
+            int iLayer = 0;
+            int iFrameSize = 0;
+            while (iLayer < sFbi.iLayerNum) {
+                SLayerBSInfo* pLayerBsInfo = &sFbi.sLayerInfo[iLayer];
+                if (pLayerBsInfo != NULL) {
+                    int iLayerSize = 0;
+                    int iNalIdx = pLayerBsInfo->iNalCount - 1;
+                    do {
+                        iLayerSize += pLayerBsInfo->pNalLengthInByte[iNalIdx];
+                        --iNalIdx;
+                    } while (iNalIdx >= 0);
+                    if (sSvcParam.iSpatialLayerNum == 1)
+                    {
+
+                    }
+                }                
+            }
+        }
+
+		if (iEncFrames == cmResultSuccess) {
+			int iLayer = 0;
+			int iFrameSize = 0;
+			while (iLayer < sFbi.iLayerNum) {
+				SLayerBSInfo* pLayerBsInfo = &sFbi.sLayerInfo[iLayer];
+				if (pLayerBsInfo != NULL) {
+					int iLayerSize = 0;
+					int iNalIdx = pLayerBsInfo->iNalCount - 1;
+					do {
+						iLayerSize += pLayerBsInfo->pNalLengthInByte[iNalIdx];
+						--iNalIdx;
+					} while (iNalIdx >= 0);
+					if (sSvcParam.iSpatialLayerNum == 1)
+					{
+						int32_t iBufPos = 0;
+						while (iBufPos < iLayerSize)
+						{
+							int32_t iSliceSize = GetSliceSize(pLayerBsInfo->pBsBuf, iBufPos, iLayerSize);
+							if (iSliceSize < 4) { //too small size, no effective data, ignore
+								iBufPos += iSliceSize;
+								continue;
+							}
+
+							printf("iBufPos = %i, iSliceSize = %i\n", iBufPos, iSliceSize);
+							// After process
+							//.....
+							pData[0] = NULL;
+							pData[1] = NULL;
+							pData[2] = NULL;
+
+							memset(&sDstBufInfo, 0, sizeof(SBufferInfo));
+							decoder->DecodeFrameNoDelay(pLayerBsInfo->pBsBuf + iBufPos, iSliceSize, pData, &sDstBufInfo);
+							//printf("DecodeFrame2::Process: pInfo->iBufferStatus=%i, iFormat=%i, iWidth=%i, iHeight=%i, iStride[0]=%i, iStride[1]=%i\n",
+							//    sDstBufInfo.iBufferStatus,
+							//    sDstBufInfo.UsrData.sSystemBuffer.iFormat,
+							//    sDstBufInfo.UsrData.sSystemBuffer.iWidth,
+							//    sDstBufInfo.UsrData.sSystemBuffer.iHeight,
+							//    sDstBufInfo.UsrData.sSystemBuffer.iStride[0],
+							//    sDstBufInfo.UsrData.sSystemBuffer.iStride[1]
+							//);
+							if (sDstBufInfo.iBufferStatus != 0)
+							{
+								//iBitsSent += iSliceSize;
+								//iFramesPerSec++;
+								int buff_len = sDstBufInfo.UsrData.sSystemBuffer.iWidth * sDstBufInfo.UsrData.sSystemBuffer.iHeight;
+								if (pData_buff == NULL)
+								{
+									pData_buff = new uint8_t[(int)(buff_len * 3)];
+								}
+
+								//printf("Write2File  - iStride[0] = %i, iStride[1] = %i, iWidth=%i, iHeight=%i\n", iStride[0], iStride[1], iWidth, iHeight);
+								//pPtr = pData[0];
+
+								//for (i = 0; i < iHeight; i++) {
+								//    fwrite(pPtr, 1, iWidth, pFp);
+								//    pPtr += iStride[0];
+								//}
+
+								//iHeight = iHeight / 2;
+								//iWidth = iWidth / 2;
+								//pPtr = pData[1];
+								//for (i = 0; i < iHeight; i++) {
+								//    fwrite(pPtr, 1, iWidth, pFp);
+								//    pPtr += iStride[1];
+								//}
+
+								//pPtr = pData[2];
+								//for (i = 0; i < iHeight; i++) {
+								//    fwrite(pPtr, 1, iWidth, pFp);
+								//    pPtr += iStride[1];
+								//}
+
+								uint8_t* pbuff = &pData_buff[0];
+								uint8_t* pdata = pData[0];
+
+								for (size_t i = 0; i < sDstBufInfo.UsrData.sSystemBuffer.iHeight; i++)
+								{
+									memcpy(pbuff, pdata, sDstBufInfo.UsrData.sSystemBuffer.iWidth);
+									pdata += sDstBufInfo.UsrData.sSystemBuffer.iStride[0];
+									pbuff += sDstBufInfo.UsrData.sSystemBuffer.iWidth;
+								}
+
+								pdata = pData[1];
+								for (size_t i = 0; i < sDstBufInfo.UsrData.sSystemBuffer.iHeight / 2; i++)
+								{
+									memcpy(pbuff, pdata, sDstBufInfo.UsrData.sSystemBuffer.iWidth / 2);
+									pdata += sDstBufInfo.UsrData.sSystemBuffer.iStride[1];
+									pbuff += sDstBufInfo.UsrData.sSystemBuffer.iWidth / 2;
+								}
+								pdata = pData[2];
+								for (size_t i = 0; i < sDstBufInfo.UsrData.sSystemBuffer.iHeight / 2; i++)
+								{
+									memcpy(pbuff, pdata, sDstBufInfo.UsrData.sSystemBuffer.iWidth / 2);
+									pdata += sDstBufInfo.UsrData.sSystemBuffer.iStride[1];
+									pbuff += sDstBufInfo.UsrData.sSystemBuffer.iWidth / 2;
+								}
+
+								Mat mYUV(sDstBufInfo.UsrData.sSystemBuffer.iHeight + sDstBufInfo.UsrData.sSystemBuffer.iHeight / 2, sDstBufInfo.UsrData.sSystemBuffer.iWidth, CV_8UC1, (void*)pData_buff);
+								Mat mRGB(sDstBufInfo.UsrData.sSystemBuffer.iHeight, sDstBufInfo.UsrData.sSystemBuffer.iWidth, CV_8UC3);
+								//                                Mat mYUV_back(720 + 720 / 2, 1280, CV_8UC1, (void*)pYUV);
+																//cvtColor(mYUV, mRGB, cv::CV_YUV2RGB_YV12, 3);
+
+								cvtColor(mYUV, mRGB, cv::COLOR_YUV2RGB_YV12, 3);
+
+								cv::imshow("Output Frame", mRGB);
+								cv::waitKey(10);
+								//int64_t iEnd = WelsTime();
+								//iEnd = iEnd / 1e3;
+								//if (iStartTime != iEnd)
+								//{
+								//    iStartTime = iEnd;
+								//    printf("Bits sent = %i, iFramesPerSec=%i\n", iBitsSent / 1000, iFramesPerSec);
+								//    iBitsSent = 0;
+								//    iFramesPerSec = 0;
+								//}
+							}
+							//.....
+							iBufPos += iSliceSize;
+						}
+
+					}
+				}
+                ++iLayer;
+			}
+		}
+	}
+
+
+
+    /// <summary>
+    /// /
+    /// </summary>
+    /// <param name="argc"></param>
+    /// <param name="argv"></param>
+    /// <returns></returns>
+
+    DestroySVCEncHandle(pPtrEnc);
+
+    return 0;
+}
+
+#define WIN32_LEAN_AND_MEAN
+#undef UNICODE
+
+#include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+// Decoder for the H264 with TCP/IP connection
+void main_h264dec(int argc, char** argv)
+{
+
+}
+
 int main(int argc, char** argv)
 {
+
+    testMain(argc, argv);
+
+    //if (false == cfg_result) return -1;
+
+
+
     ISVCEncoder* pSVCEncoder = NULL;
     int iRet = 0;
 

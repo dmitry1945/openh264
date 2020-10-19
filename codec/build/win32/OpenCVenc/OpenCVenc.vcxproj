@@ -145,9 +145,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\console\common\src\read_config.cpp" />
+    <ClCompile Include="..\..\linux\encH264TcpTx\src\encH264_init.cpp" />
     <ClCompile Include="OpenCVenc.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\linux\encH264TcpTx\config\layer2_vd.yaml" />
+    <None Include="..\..\linux\encH264TcpTx\config\mpeg_encoder.yaml" />
     <None Include="config\layer2_vd_cfg.cfg" />
     <None Include="config\welsenc_vd_1d_cfg.cfg" />
   </ItemGroup>

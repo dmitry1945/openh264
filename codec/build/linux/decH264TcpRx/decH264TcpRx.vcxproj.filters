@@ -4,24 +4,50 @@
     <Filter Include="src">
       <UniqueIdentifier>{424f8514-f35c-497c-8d02-ec181deac9f8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data">
+      <UniqueIdentifier>{e123823d-1ce7-4c83-a546-c72737528be9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tcp">
+      <UniqueIdentifier>{060cb6bf-449f-4f57-9090-f6b75e81c7ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp">
+    <ClCompile Include="src\decH264TcpRx_main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\TCPClient.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="..\modules\tcp\TCPClient.cpp">
+      <Filter>tcp</Filter>
     </ClCompile>
-    <ClCompile Include="src\TCPServer.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="..\modules\tcp\TCPServer.cpp">
+      <Filter>tcp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\modules\tcp\TCP_DataRecv.cpp">
+      <Filter>tcp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\modules\tcp\rxtx_packet.cpp">
+      <Filter>tcp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\TCPClient.h">
-      <Filter>src</Filter>
+    <Text Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="data\image_left_0006.jpg">
+      <Filter>Data</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\modules\tcp\TCPClient.h">
+      <Filter>tcp</Filter>
     </ClInclude>
-    <ClInclude Include="src\TCPServer.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\modules\tcp\TCPServer.h">
+      <Filter>tcp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\modules\tcp\TCP_DataRecv.h">
+      <Filter>tcp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\modules\tcp\rxtx_packet.h">
+      <Filter>tcp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
